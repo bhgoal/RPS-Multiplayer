@@ -72,27 +72,38 @@ var localPlayer;
 var otherPlayer;
 var nameInput;
 
-checkPlayers();
-
 // Upon page load, copy player slot status from db to local
-function checkPlayers() {
-  database.ref("/players").on("value", function(snapshot) {
+database.ref("/players").on("value", function(snapshot) {
   if (snapshot.child("player1").exists()) {
     console.log("player 1 exists: " + player1);
     player1 = snapshot.val().player1;
     $("#player1Name").text("Player 1: " + player1.name);
+    $("#player1Wins").text("Wins: " + player1.wins);
+    $("#player1Losses").text("Losses: " + player1.losses);
+    $("#player1Ties").text("Ties: " + player1.ties);
   }
   if (snapshot.child("player2").exists()) {
     console.log("player 2 exists: " + player2);
     player2 = snapshot.val().player2;
     $("#player2Name").text("Player 2: " + player2.name);
+    $("#player2Wins").text("Wins: " + player2.wins);
+    $("#player2Losses").text("Losses: " + player2.losses);
+    $("#player2Ties").text("Ties: " + player2.ties);
   }
+});
 
+
+
+// Listener for starting game once both players are ready
+database.ref("/ready").on("value", function(snapshot){
   if ((snapshot.child("player1").exists()) && (snapshot.child("player2").exists())) {
-    setTimeout(startMatch, 200);
+    if ((snapshot.val().player1 === true) && (snapshot.val().player2 === true)) {
+      database.ref("/moves/").remove();
+      $("#matchMessageDisplay").text("Loading..");
+      setTimeout(startMatch, 500);
+    }
   }
-  });
-}
+});
 
 
 // Enter name to join game
@@ -107,24 +118,34 @@ $("#submit-name").on("click", function(event) {
   // Check if slot 1 open
   if (player1 === null) {
     player1 = {
-      name: nameInput
+      name: nameInput,
+      wins: 0,
+      losses: 0,
+      ties: 0
     }
     localPlayer = "player1";
     otherPlayer = "player2";
     database.ref().child("/players/player1").set(player1);
     database.ref("/players/player1").onDisconnect().remove();
+    database.ref().child("/ready/player1").set(true);
+    database.ref("/ready/player1").onDisconnect().remove();
     console.log("adding p1: " + nameInput);
     $("#player1Name").text("Player 1: " + nameInput);
     $("#matchPositionDisplay").text("You are Player 1");
   } else // Check if slot 2 open
   if (player2 === null) {
     player2 = {
-      name: nameInput
+      name: nameInput,
+      wins: 0,
+      losses: 0,
+      ties: 0,
     }
     localPlayer = "player2";
     otherPlayer = "player1";
     database.ref().child("/players/player2").set(player2);
     database.ref("/players/player2").onDisconnect().remove();
+    database.ref().child("/ready/player2").set(true);
+    database.ref("/ready/player2").onDisconnect().remove();
     console.log("adding p2: " + nameInput);
     $("#player2Name").text("Player 2: " + nameInput);
     $("#matchPositionDisplay").text("You are Player 2");
@@ -167,12 +188,10 @@ function startMatch() {
     $("#moveButtons").addClass("d-none");
     });   
 
-    
-  // Listener for status of player moves
-  database.ref("/moves").on("value", function(snapshot) {
-  // Status of other player
-  
+}    
 
+// Listener for status of player moves
+database.ref("/moves").on("value", function(snapshot) {
   // Run winner check once both moves are made
   if (snapshot.child("player1").exists() && snapshot.child("player2").exists()) {
     player1Move = snapshot.val().player1;
@@ -180,31 +199,43 @@ function startMatch() {
     otherMove = snapshot.val()[`${otherPlayer}`];
 
     if ((player1Move === "rock") && (player2Move === "scissors")) {
-      winner = "player1";
+      winner = player1;
     } else if ((player1Move === "rock") && (player2Move === "paper")) {
-      winner = "player2";
+      winner = player2;
     } else if ((player1Move === "scissors") && (player2Move === "rock")) {
-      winner = "player2";
+      winner = player2;
     } else if ((player1Move === "scissors") && (player2Move === "paper")) {
-      winner = "player1";
+      winner = player1;
     } else if ((player1Move === "paper") && (player2Move === "rock")) {
-      winner = "player1";
+      winner = player1;
     } else if ((player1Move === "paper") && (player2Move === "scissors")) {
-      winner = "player2";
+      winner = player2;
     } else if (player1Move === player2Move) {
-      winner = "tie";
+      winner.name = "Tie";
     }
     console.log("Winner: " + winner);
     $("#matchMoveStatus").text("Other player's move: " + (otherMove.charAt(0).toUpperCase() + otherMove.slice(1)));
-    $("#matchMoveStatus").append("<br>Winner: " + winner);
+    if (winner === player1) {
+      $("#matchMoveStatus").append("<br>Winner: " + player1.name);
+      player1.wins++;
+      player2.losses++;
+    } else if (winner === player2) {
+      $("#matchMoveStatus").append("<br>Winner: " + player2.name);
+      player2.wins++;
+      player1.losses++;
+    } else {
+      $("#matchMoveStatus").append("Tie game");
+      player1.ties++;
+      player2.ties++;
+    }
+    database.ref("/players").set({player1, player2});
+    database.ref().child(`/ready/${localPlayer}`).set(false);
     $("#restart").removeClass("d-none");
     $("#restart").on("click", function(event) {
       event.preventDefault();
       event.stopPropagation();
-      restartMatch();
-      
+      restartMatch(); 
     });   
-    
 
   } // If player has not chosen but opponent has
   else if (snapshot.child(`${otherPlayer}`).exists()) {
@@ -217,16 +248,19 @@ function startMatch() {
     $("#matchMoveStatus").text("Waiting for other player's move.");
   }
 
-  });
+});
 
-}
+
 
 
 function restartMatch() {
   $("#restart").addClass("d-none");
-  database.ref("/moves/").remove();
-  $("#matchMessageDisplay").text("Waiting for players.");
-  checkPlayers();
+  moveInput = null;
+  $("#matchMessageDisplay").text("Waiting for opponent.");
+  $("#matchMoveStatus").empty();
+  database.ref().child(`/ready/${localPlayer}`).set(true);
+     
+
 }
 
 
