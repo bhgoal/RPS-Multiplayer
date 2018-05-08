@@ -1,0 +1,10 @@
+#name-form {
+    width: 20vw;
+    margin-left: 90px;
+    margin-right: 10px;
+}
+
+#chatMessages {
+    height: 200px;
+    overflow: scroll;
+}

@@ -15,52 +15,62 @@
 </head>
 
 <body>
-
-    <div id="connected-viewers"></div>
-
-    <div class="row">
-        <div class="col-lg-4 border">
-            <div id="player1Display">
-                <h2 class="text-center">Player 1</h2>
-                <div class="text-center" id="player1Name">Waiting for Player 1</div>
-                <div id="player1Stats">
-                    <div id="player1Wins">Wins: 0</div>
-                    <div id="player1Losses">Losses: 0</div>
-                    <div id="player1Ties">Ties: 0</div>
-                </div>
+    <div class="container">
+        <div id="loginContainer">
+            <h1 class="text-center">Welcome! Please enter your name:</h1>
+            <div class="col-lg-6 mx-auto">
+                <form class="form-inline" id="nameFormBox">
+                    <input class="form-control" id="name-form" type="text">
+                    <button class="btn btn-primary" id="submit-name" type="submit">Submit</button>
+                </form>
             </div>
         </div>
-        <div class="col-lg-4 border">
-            <div class="text-center" id="matchPositionDisplay"></div>
-            <div class="text-center" id="matchMessageDisplay">Waiting for players.</div>
-            <div class="text-center" id="matchMoveStatus"></div>
-            <div class="d-none" id="moveButtons">
-                <button class="btn btn-primary" id="rock" type="button">Rock</button>
-                <button class="btn btn-primary" id="paper" type="button">Paper</button>
-                <button class="btn btn-primary" id="scissors" type="button">Scissors</button>
-            </div>
-            <button class="btn btn-primary d-none" id="restart" type="button">Restart</button>
-                    
-        </div>
-        <div class="col-lg-4 border">
-            <div id="player2Display">
-                <h2 class="text-center">Player 2</h2>
-                <div class="text-center" id="player2Name">Waiting for Player 2</div>
-                <div id="player2Stats">
-                    <div id="player2Wins">Wins: 0</div>
-                    <div id="player2Losses">Losses: 0</div>
-                    <div id="player2Ties">Ties: 0</div>
+        <div class="d-none" id="gameContainer">
+            <div class="row">
+                <div class="col-lg-4 border">
+                    <div id="player1Display">
+                        <h2 class="text-center" id="player1Name">Waiting for Player 1</h2>
+                        <div id="player1Stats">
+                            <div id="player1Wins">Wins: 0</div>
+                            <div id="player1Losses">Losses: 0</div>
+                            <div id="player1Ties">Ties: 0</div>
+                        </div>
+                    </div>
                 </div>
+                <div class="col-lg-4 border">
+                    <div class="text-center" id="matchPositionDisplay"></div>
+                    <div class="text-center" id="matchMessageDisplay">Waiting for players.</div>
+                    <div class="text-center" id="matchMoveStatus"></div>
+                    <div class="d-none" id="moveButtons">
+                        <button class="btn btn-primary" id="rock" type="button">Rock</button>
+                        <button class="btn btn-primary" id="paper" type="button">Paper</button>
+                        <button class="btn btn-primary" id="scissors" type="button">Scissors</button>
+                    </div>
+                    <button class="btn btn-primary d-none" id="restart" type="button">Restart</button>
+                            
+                </div>
+                <div class="col-lg-4 border">
+                    <div id="player2Display">
+                        <h2 class="text-center" id="player2Name">Waiting for Player 2</h2>
+                        <div id="player2Stats">
+                            <div id="player2Wins">Wins: 0</div>
+                            <div id="player2Losses">Losses: 0</div>
+                            <div id="player2Ties">Ties: 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="connected-viewers"></div>
+            <div class="border mt-5 d-none" id="chatBox">
+                <div class="border" id="chatMessages"></div>
+                <form id="chatEntry">
+                    <label for="chat-form">Chat</label>
+                    <input class="form-control" id="chat-form" type="text">
+                    <button class="btn btn-primary" id="submit-chat" type="submit">Submit</button>
+                </form>
             </div>
         </div>
     </div>
-
-    <form id="nameFormBox">
-        <label for="player-name">Your Name</label>
-        <input class="form-control" id="name-form" type="text">
-        <button class="btn btn-primary" id="submit-name" type="submit">Submit</button>
-    </form>
-
 
     
     <!-- Optional JavaScript -->
